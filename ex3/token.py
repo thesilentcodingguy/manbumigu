@@ -1,43 +1,79 @@
 import time
 
 TOTAL_PROCESSES = 5
-TOTAL_ROUNDS = 10
 DELAY = 1
 
+# Logical ring
+processes = [1, 2, 3, 4, 5]
 
-def main():
+# Processes that requested the Critical Section
+requests = [1, 3, 2, 4, 5]
 
-    token = 0
 
-    print("TOKEN RING MUTUAL EXCLUSION SIMULATION")
-    print(f"Processes: {TOTAL_PROCESSES}")
-    print(f"Token passes: {TOTAL_ROUNDS}")
+def enter_critical_section(pid):
+    print(f"\nProcess {pid} ENTERS Critical Section")
 
-    for round_no in range(1, TOTAL_ROUNDS + 1):
+    # Simulate work inside CS
+    time.sleep(DELAY)
 
-        print("\n" + "=" * 50)
-        print(f"ROUND {round_no}")
-        print("=" * 50)
+    print(f"Process {pid} EXITS Critical Section")
 
-        print(
-            f"Token is currently with Process {token}"
-        )
 
-        print(
-            f"Process {token} "
-            f"ENTERS Critical Section"
-        )
+def token_ring():
+    # Initially token is with P1
+    token = 1
 
-        time.sleep(DELAY)
+    print("=" * 50)
+    print("TOKEN RING MUTUAL EXCLUSION")
+    print("=" * 50)
 
-        print(
-            f"Process {token} "
-            f"EXITS Critical Section"
-        )
+    print("\nLogical Ring:")
+    print("P1 -> P2 -> P3 -> P4 -> P5 -> P1")
 
-        next_token = (
-            (token + 1) % TOTAL_PROCESSES
-        )
+    print("\nRequest Order:")
+    print(" -> ".join(f"P{p}" for p in requests))
+
+    print("\nStarting Token: P1")
+
+    # Continue until all requests are completed
+    remaining_requests = requests.copy()
+
+    while remaining_requests:
+
+        print("\n" + "-" * 50)
+        print(f"Token is currently with Process {token}")
+        print("-" * 50)
+
+        # Check whether current process requested CS
+        if token in remaining_requests:
+
+            print(f"Process {token} has requested Critical Section")
+
+            # Remove request so it is not processed again
+            remaining_requests.remove(token)
+
+            # Enter CS
+            enter_critical_section(token)
+
+        else:
+
+            print(
+                f"Process {token} has NOT requested "
+                f"Critical Section"
+            )
+
+            print(
+                f"Process {token} simply passes the token"
+            )
+
+        # Find next process in the ring
+        current_index = processes.index(token)
+
+        next_index = (
+            current_index + 1
+        ) % TOTAL_PROCESSES
+
+        next_token = processes[next_index]
 
         print(
             f"Token passed from Process {token} "
@@ -46,8 +82,13 @@ def main():
 
         token = next_token
 
-    print("\nSimulation completed.")
+        time.sleep(DELAY)
+
+    print("\n" + "=" * 50)
+    print("All requests have been completed.")
+    print("Token Ring simulation completed.")
+    print("=" * 50)
 
 
 if __name__ == "__main__":
-    main()
+    token_ring()
